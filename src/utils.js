@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import * as process from "node:process";
 
-export function resolvePathSafe(base: string, target: string): string {
+export function resolvePathSafe(base, target) {
   const outDir = path.resolve(base, target);
   if (!outDir.startsWith(path.resolve(base))) {
     throw new Error(`outDir is outside of \`${base}\``);
@@ -9,7 +9,7 @@ export function resolvePathSafe(base: string, target: string): string {
   return outDir;
 }
 
-export function getRelativeOutDir(distPath: string, name?: string) {
+export function getRelativeOutDir(distPath, name) {
   const absPath = resolvePathSafe(distPath, name ? path.dirname(name) : ".");
   return path.relative(process.cwd(), absPath);
 }

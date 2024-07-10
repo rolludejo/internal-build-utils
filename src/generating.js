@@ -1,35 +1,17 @@
 import * as path from "node:path";
 
-import { BuildOptions } from "esbuild";
-import { Options as TSUPOptions } from "tsup";
-
 import { getRelativeOutDir } from "./utils";
 
-export interface Entry {
-  entry: string;
-  name?: string;
-  noExternal?: TSUPOptions["noExternal"];
-  external?: TSUPOptions["external"];
-}
-export type MainEntry = Omit<Entry, "name">;
-export type OtherEntry = Entry & Required<Pick<Entry, "name">>;
-
-export interface CommonOptions {
-  mainEntry: MainEntry;
-  otherEntries?: OtherEntry[];
-}
-
-export interface GeneratePackageJSONOptions extends CommonOptions {
-  withInternalEntry: boolean;
-}
-
 export function generatePackageJSON(
-  oldPackageJSON: any,
-  opts: GeneratePackageJSONOptions,
+  oldPackageJSON,
+  opts,
 ) {
-  const entries: Entry[] = [opts.mainEntry, ...(opts.otherEntries ?? [])];
+  /**
+   * @type { import("./generating").Entry[] }
+   */
+  const entries = [opts.mainEntry, ...(opts.otherEntries ?? [])];
 
-  const newPackageJSON: any = structuredClone(oldPackageJSON);
+  const newPackageJSON = structuredClone(oldPackageJSON);
   newPackageJSON.exports = {
     ...(Object.fromEntries(entries.map((e) => [
       e.name ? "./" + e.name : ".",
@@ -55,14 +37,13 @@ export function generatePackageJSON(
   return newPackageJSON;
 }
 
-export interface GenerateTSUPOptionsOptions extends CommonOptions {
-  external?: TSUPOptions["external"];
-}
+export function generateTSUPOptions(opts) {
+  /**
+   * @type {import("./generating").Entry[]}
+   */
+  const entries = [opts.mainEntry, ...(opts.otherEntries ?? [])];
 
-export function generateTSUPOptions(opts: GenerateTSUPOptionsOptions) {
-  const entries: Entry[] = [opts.mainEntry, ...(opts.otherEntries ?? [])];
-
-  return entries.map((entry): TSUPOptions => {
+  return entries.map((entry) => {
     const { entry: entryPoint, name } = entry;
 
     const outDir = getRelativeOutDir("dist", name);
@@ -71,7 +52,7 @@ export function generateTSUPOptions(opts: GenerateTSUPOptionsOptions) {
       target: "es2020",
       format: "esm",
       minify: true,
-    } as const satisfies BuildOptions;
+    };
 
     return {
       ...buildOpts,
