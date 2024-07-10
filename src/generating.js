@@ -1,6 +1,6 @@
 import * as path from "node:path";
 
-import { getRelativeOutDir } from "./utils";
+import { getRelativeOutDir } from "./utils.js";
 
 export function generatePackageJSON(
   oldPackageJSON,
